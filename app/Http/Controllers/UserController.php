@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
-use App\Http\Requests\StoreUserControllerRequest;
+use Illuminate\Support\Facades\Hash;
 
 use App\Models\User;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller
 {
@@ -15,9 +16,22 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct()
+    {
+        $this->middleware('permission:user-view', ['only' => ['index']]);
+        $this->middleware('permission:user-create', ['only' => ['create','store']]);
+        $this->middleware('permission:user-edit', ['only' => ['update','edit']]);
+        $this->middleware('permission:user-delete', ['only' => ['destroy']]);
+    }
+
+
     public function index()
     {
-        //
+       $users = User::where('id', '!=', auth()->user()->id)->where('id', '!=', 1)->get();
+        // $users = User::skip(1);
+
+        
+        return view('users.index', ['users' => $users]);
     }
 
     /**
@@ -27,7 +41,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        $roles = Role::all();
+        return view('users.create', ['roles' => $roles]);
     }
 
     /**
@@ -36,9 +51,18 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreUserControllerRequest $request)
+    public function store(Request $request)
     {
-        //
+        $user = new User;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+
+        $user->save();
+
+        $user->assignRole($request->role);
+
+        return redirect()->route('users.index');
     }
 
     /**
