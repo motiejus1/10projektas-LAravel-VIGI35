@@ -17,6 +17,9 @@
                 <td>{{ $permission->id }}</td>
                 <td>{{ $permission->name }}</td>
                 <td>{{ $permission->guard_name }}</td>
+                <td>@foreach ($permission->permissionsAllowedmethods as $method)
+                    <strong>{{ $method->name }}</strong>
+                    @endforeach</td>
                 <td>
 
                     {{-- trynimo forma turi matytis tik tiems kurie turi teise permission-delete --}}

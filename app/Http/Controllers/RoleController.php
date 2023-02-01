@@ -5,13 +5,28 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Permission;
 
 class RoleController extends Controller
 {
     
     public function __construct()
     {
+
+
+        // galeciau pasiimti teises is duomenu bazes
+        //tureciau savo veiksmu sarasa duomenu bazeje
+
+        //index create store update edit destroy
+        //custom metoday search, searchAjax ir t.t.
+
+        //Prie teises priskiriame veiksmus
+        //ne tik teises, bet ir veiksmu sarasa
+        //index create store update edit destroy
+        //CRUD galetume pildyti
+        //Veiksmu sarasa
+        //sugenerave instrukcijas tarpininkui su foreach
+
         $this->middleware('permission:role-view', ['only' => ['index']]);
         $this->middleware('permission:role-create', ['only' => ['create','store']]);
         $this->middleware('permission:role-edit', ['only' => ['update','edit']]);
@@ -26,6 +41,8 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::where('id', '!=', 1)->get();
+        
+
         return view('roles.index', ['roles' => $roles]);
     }
 

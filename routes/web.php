@@ -3,6 +3,7 @@
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\AllowedmethodController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,4 +56,15 @@ Route::prefix('permissions')->group(function() {
     Route::post('/update/{id}',[PermissionController::class, 'update'])->name('permissions.update');
     Route::post('/destroy/{id}',[PermissionController::class, 'destroy'])->name('permissions.destroy');
     Route::get('/show/{id}',[PermissionController::class, 'show'])->name('permissions.show');
+    Route::get('/search',[PermissionController::class, 'search'])->name('permissions.search');
+});
+
+Route::prefix('allowedmethods')->group(function() {
+    Route::get('/',[AllowedmethodController::class, 'index'])->name('allowedmethods.index');
+    Route::get('/create',[AllowedmethodController::class, 'create'])->name('allowedmethods.create');
+    Route::post('/store',[AllowedmethodController::class, 'store'])->name('allowedmethods.store');
+    // Route::get('/edit/{id}',[PermissionController::class, 'edit'])->name('permissions.edit');
+    // Route::post('/update/{id}',[PermissionController::class, 'update'])->name('permissions.update');
+    Route::post('/destroy/{id}',[AllowedmethodController::class, 'destroy'])->name('allowedmethods.destroy');
+    // Route::get('/show/{id}',[PermissionController::class, 'show'])->name('permissions.show');
 });

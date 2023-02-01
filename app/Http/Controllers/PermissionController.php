@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Permission;
+use App\Models\Allowedmethod;
 
 class PermissionController extends Controller
 {
@@ -17,17 +18,46 @@ class PermissionController extends Controller
 
         // vartotojas turi teise perziureti, kurti, neturi teises redaguoti ir trinti
         //(tarpininko pavadinmas: teise pavadinasm, ['only'] => ['metodai kuriuos gali pasiekti teise turintis zmogus'])
-        $this->middleware('permission:permission-view', ['only' => ['index']]);
-        $this->middleware('permission:permission-create', ['only' => ['create','store']]);
-        $this->middleware('permission:permission-edit', ['only' => ['update','edit']]);
-        $this->middleware('permission:permission-delete', ['only' => ['destroy']]);
-        $this->middleware('permission:permission-search', ['only' => ['search']]);
+        
+        $permissions = Permission::where('name', 'like', 'permission-%')->get();
+        
+        foreach($permissions as $permission) {    
+            if(!empty($permission->permissionsAllowedmethods->pluck('name')->toArray())) 
+            {
+                $this->middleware("permission:$permission->name",['only' => $permission->permissionsAllowedmethods->pluck('name')->toArray()]);
+            }
+        }
+        
+        // n+1
+        //Permissions
+        //permission-view
+        // permission-create
+        //...
+        //MEtodu sarasas buna duomenu bazeje
+        //index, create, store, edit, update, destroy, search, searchAjax
+
+        //Cia jau kas vyksta ne kode?
+        // permission-view - Method index()
+        // permission-create = Method create(), store()
+
+
+        // $permissions = Permission::all();
+
+        // $allowed_methods = $permissions -> permissionsMehods();
+        // foreach($permissions as $permission) {
+        //     foreach($allowed_methods as $method) {
+        //         $this->middleware("permission:$permission", ['only' => [$method]]);
+        //     }
+        // }
+
     }
 
+    public function searchAjax() {
 
+    }
 
     public function search() {
-
+        return view('permissions.search');
     }
     /**
      * Display a listing of the resource.
@@ -47,8 +77,13 @@ class PermissionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
+
+
+    
     {
-        return view('permissions.create');
+
+        $allowedmethods = Allowedmethod::all();
+        return view('permissions.create', ['allowedmethods' => $allowedmethods]);
     }
 
     /**
@@ -64,6 +99,9 @@ class PermissionController extends Controller
         //mum nereikia id, ir mums nereikia guard_name
         $permission->name = $request->name;
         $permission->save();
+
+    
+        $permission->permissionsAllowedmethods()->attach($request->allowedmethods);
 
         return redirect()->route('permissions.index');
     }
@@ -94,7 +132,8 @@ class PermissionController extends Controller
     public function edit($id)
     {
         $permission = Permission::find($id);
-        return view('permissions.edit', ['permission' => $permission]);
+        $allowedmethods = Allowedmethod::all();
+        return view('permissions.edit', ['permission' => $permission, 'allowedmethods' => $allowedmethods]);
 
     }
 
@@ -110,6 +149,9 @@ class PermissionController extends Controller
         $permission = Permission::find($id);
         $permission->name = $request->name;
         $permission->save();
+        $permission->permissionsAllowedmethods()->detach();
+        $permission->permissionsAllowedmethods()->attach($request->allowedmethods);
+
 
         return redirect()->route('permissions.index');
     }
@@ -124,7 +166,16 @@ class PermissionController extends Controller
     {
         $permission = Permission::find($id);
         $permission->delete();
+        $permission->permissionsAllowedmethods()->detach();
 
         return redirect()->route('permissions.index');
     }
+
+
+    public function __destruct(){
+
+        // $this->middleware('auth'); ?????//
+        //teisiur roliu modulis turi savyje cache
+    }
+    
 }

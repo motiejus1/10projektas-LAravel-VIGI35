@@ -33,6 +33,19 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.index') }}">Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('permissions.index') }}">Permissions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('roles.index') }}">Role</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('allowedmethods.index') }}">Allowed Methods</a>
+                        </li>
+
 
                     </ul>
 
